@@ -1,6 +1,7 @@
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { cookies } from "next/headers";
-
+import { SidebarTrigger, SidebarInset } from "@/components/ui/sidebar";
+import { AppSidebar } from "@/components/DashboardSidebar";
 export default async function Layout({
   children,
 }: Readonly<{
@@ -10,7 +11,14 @@ export default async function Layout({
   return (
     <div className="min-h-full flex flex-col">
       <SidebarProvider defaultOpen={sidebarCookieState?.value !== "false"}>
-        {children}
+        <AppSidebar />
+
+        <SidebarInset>
+          <header className="flex h-16 items-center border-b px-4">
+            <SidebarTrigger />
+          </header>
+          {children}
+        </SidebarInset>
       </SidebarProvider>
     </div>
   );

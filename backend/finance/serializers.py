@@ -38,7 +38,8 @@ class CategorySerializer(serializers.ModelSerializer):
 class AccountSerializer(serializers.ModelSerializer):
     class Meta:
         model = Account
-        fields = ['name', 'type', 'balance']
+        fields = ['name', 'type', 'balance', 'is_active']
+        read_only_fields = ['is_active']
 
     def validate(self, attrs):
         user = self.context["request"].user
