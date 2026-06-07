@@ -1,11 +1,10 @@
-from django.http.response import HttpResponse
-from rest_framework import viewsets, status
+from rest_framework import viewsets
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from rest_framework.generics import RetrieveAPIView, CreateAPIView
+from rest_framework.generics import CreateAPIView
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
-
+from django.conf import settings
 from finance.models import Category, Account, Expense, Payment
 from finance.serializers import RegisterSerializer, CategorySerializer, AccountSerializer, ExpenseSerializer
 
@@ -24,7 +23,7 @@ class LoginView(TokenObtainPairView):
                 httponly=True,
                 secure=False,
                 samesite="Lax",
-                max_age=300
+                max_age=settings.SIMPLE_JWT['ACCESS_TOKEN_LIFETIME'],
             )
 
         if refresh:
@@ -34,7 +33,7 @@ class LoginView(TokenObtainPairView):
                 httponly=True,
                 secure=False,
                 samesite="Lax",
-                max_age=86400
+                max_age=settings.SIMPLE_JWT['REFRESH_TOKEN_LIFETIME'],
             )
 
         return response
@@ -42,32 +41,16 @@ class LoginView(TokenObtainPairView):
 
 class RefreshTokenView(TokenRefreshView):
     def post(self, request, *args, **kwargs):
-        refresh_token = request.data.get("refresh")
-
-        if not refresh_token:
-            return Response(
-                {"detail": "No refresh token in body"},
-                status=status.HTTP_401_UNAUTHORIZED,
-            )
-
-        serializer = self.get_serializer(data={"refresh": refresh_token})
-        serializer.is_valid(raise_exception=True)
-
-        print("validated_data:", serializer.validated_data)
-
-        access = serializer.validated_data["access"]
-
-        response = Response({"access": access}, status=status.HTTP_200_OK)
+        response = super().post(request, *args, **kwargs)
+        access = response.data.get("access")
         response.set_cookie(
             key="access_token",
             value=access,
             httponly=True,
             secure=False,
             samesite="Lax",
-            max_age=300,
+            max_age=settings.SIMPLE_JWT['ACCESS_TOKEN_LIFETIME'],
         )
-
-        print("Set-Cookie header should now be on response")
         return response
 
 

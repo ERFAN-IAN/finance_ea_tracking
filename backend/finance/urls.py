@@ -1,5 +1,6 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
+from rest_framework_simplejwt.views import TokenVerifyView
 
 router = DefaultRouter()
 from finance.views import RegisterView, MeView, CategoryViewset, AccountViewset, ExpenseViewset, LoginView, \
@@ -11,6 +12,7 @@ router.register(r'expenses', ExpenseViewset, basename='expense')
 urlpatterns = [
     path('api/token/', LoginView.as_view(), name='token_obtain_pair'),
     path('api/token/refresh/', RefreshTokenView.as_view(), name='token_refresh'),
+    path('api/token/verify/', TokenVerifyView.as_view(), name='token_verify'),
     path('api/register/', RegisterView.as_view(), name='register'),
     path('api/me/', MeView.as_view(), name='me'),
     path('api/', include(router.urls)),
