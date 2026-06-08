@@ -3,7 +3,7 @@ from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.generics import CreateAPIView
-from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
+from rest_framework_simplejwt.views import TokenObtainPairView
 from django.conf import settings
 from finance.models import Category, Account, Expense, Payment
 from finance.serializers import RegisterSerializer, CategorySerializer, AccountSerializer, ExpenseSerializer
@@ -40,21 +40,6 @@ class LoginView(TokenObtainPairView):
                 max_age=settings.SIMPLE_JWT['REFRESH_TOKEN_LIFETIME'],
             )
 
-        return response
-
-
-class RefreshTokenView(TokenRefreshView):
-    def post(self, request, *args, **kwargs):
-        response = super().post(request, *args, **kwargs)
-        access = response.data.get("access")
-        response.set_cookie(
-            key="access_token",
-            value=access,
-            httponly=True,
-            secure=False,
-            samesite="Lax",
-            max_age=settings.SIMPLE_JWT['ACCESS_TOKEN_LIFETIME'],
-        )
         return response
 
 

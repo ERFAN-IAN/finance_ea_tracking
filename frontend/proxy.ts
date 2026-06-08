@@ -38,7 +38,7 @@ export async function proxy(request: NextRequest) {
 
 async function handleRefreshAndContinue(
   refreshToken: string,
-  request: NextRequest
+  request: NextRequest,
 ) {
   if (!process.env.ACCESS_TOKEN_LIFETIME_MINUTES)
     throw new Error("ACCESS_TOKEN_LIFETIME_MINUTES not set!");
@@ -50,7 +50,9 @@ async function handleRefreshAndContinue(
   });
 
   if (!refreshRes.ok) {
-    return NextResponse.redirect(new URL("/login", request.url));
+    const response = NextResponse.redirect(new URL("/login", request.url));
+    response.cookies.delete("refresh_token");
+    return response;
   }
 
   const data = await refreshRes.json();
