@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, Users, Settings, Wallet } from "lucide-react";
+import { Home, LogOut, Settings, Wallet } from "lucide-react";
+import { logout } from "@/app/actions/auth";
 
 import {
   Sidebar,
@@ -21,11 +22,6 @@ const items = [
     title: "Dashboard",
     url: "/",
     icon: Home,
-  },
-  {
-    title: "Login",
-    url: "/login",
-    icon: Users,
   },
   {
     title: "Accounts",
@@ -71,6 +67,17 @@ export function AppSidebar() {
                   </SidebarMenuItem>
                 );
               })}
+              <SidebarMenuItem>
+                <form action={logout} className="w-full">
+                  <SidebarMenuButton
+                    type="submit"
+                    className="h-10 w-full cursor-pointer data-[active=true]:bg-muted data-[active=true]:text-foreground"
+                  >
+                    <LogOut className="h-4 w-4" />
+                    <span>Logout</span>
+                  </SidebarMenuButton>
+                </form>
+              </SidebarMenuItem>
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>

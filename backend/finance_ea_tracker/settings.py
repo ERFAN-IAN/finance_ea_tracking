@@ -22,12 +22,21 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-@e_)s(9b=hu5!^*h&!3v*a-47!+67udko%7wwzs1bc_+o_(cej'
+SECRET_KEY = os.getenv("DJANGO_SECRET_KEY")
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+PRODUCTION = os.getenv("PRODUCTION", "false").lower() == "true"
 
-ALLOWED_HOSTS = []
+DEBUG = not PRODUCTION
+
+ALLOWED_HOSTS = (
+    ["backend", "localhost", "127.0.0.1"]
+    if not PRODUCTION
+    else [os.getenv("DOMAIN")]
+)
+
+INSTALLED_APPS = [
+    'django.contrib.admin',
+]
 
 # Application definition
 
@@ -139,12 +148,13 @@ REST_FRAMEWORK = {
 
 AUTH_USER_MODEL = "users.CustomUser"
 
-CORS_ALLOW_CREDENTIALS = True
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000",
-]
+CORS_ALLOW_CREDENTIALS = True if not PRODUCTION else False
+CORS_ALLOWED_ORIGINS = ([
+                            "http://localhost:3000",
+                        ] if not PRODUCTION
+                        else [])
 
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(seconds=5),
-    'REFRESH_TOKEN_LIFETIME': timedelta(days=10),
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=int(os.getenv('ACCESS_TOKEN_LIFETIME_MINUTES'))),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=int(os.getenv('REFRESH_TOKEN_LIFETIME_DAYS'))),
 }

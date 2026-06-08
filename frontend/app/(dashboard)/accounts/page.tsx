@@ -5,7 +5,7 @@ import { Suspense } from "react";
 export default async function Page() {
   const cookieStore = await cookies();
   const token = cookieStore.get("access_token")?.value;
-  const res = fetch("http://localhost:8000/api/accounts/", {
+  const res = fetch(`${process.env.BACKEND_API_SERVER}accounts/`, {
     headers: {
       Authorization: `Bearer ${token}`,
     },

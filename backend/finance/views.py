@@ -11,6 +11,10 @@ from finance.serializers import RegisterSerializer, CategorySerializer, AccountS
 
 # Create your views here.
 
+class RegisterView(CreateAPIView):
+    serializer_class = RegisterSerializer
+
+
 class LoginView(TokenObtainPairView):
     def post(self, request, *args, **kwargs):
         response = super().post(request, *args, **kwargs)

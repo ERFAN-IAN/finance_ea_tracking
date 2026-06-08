@@ -1,7 +1,6 @@
 "use client";
 
 import { useForm } from "react-hook-form";
-import { Home } from "lucide-react";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
@@ -11,10 +10,17 @@ import { Label } from "@/components/ui/label";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 
-const loginSchema = z.object({
-  username: z.string().min(1, "Username is required"),
-  password: z.string().min(1, "Password is required"),
-});
+const registerSchema = z
+  .object({
+    username: z.string().min(1, "Username is required"),
+    email: z.string().email("Invalid email"),
+    password: z.string().min(1, "Password is required"),
+    password2: z.string().min(1, "Please repeat your password"),
+  })
+  .refine((data) => data.password === data.password2, {
+    message: "Passwords do not match",
+    path: ["password2"],
+  });
 
 export default function LoginPage() {
   const {
@@ -22,27 +28,19 @@ export default function LoginPage() {
     handleSubmit,
     formState: { errors, isSubmitting },
     setError,
-  } = useForm({ resolver: zodResolver(loginSchema) });
+  } = useForm({ resolver: zodResolver(registerSchema) });
   const router = useRouter();
   return (
-    <main className="flex min-h-screen w-full flex-col items-center justify-center bg-gray-50 p-6">
+    <main className="flex min-h-screen w-full items-center justify-center bg-gray-50 p-6">
       <Card className="w-full max-w-sm">
         <CardHeader>
-          <Link
-            href="/"
-            className="mb-2 flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground"
-          >
-            <Home className="h-4 w-4" />
-            Back to Home
-          </Link>
-
-          <CardTitle className="text-2xl">Login</CardTitle>
+          <CardTitle className="text-2xl">Register</CardTitle>
         </CardHeader>
         <CardContent>
           <form
             onSubmit={handleSubmit(async (data) => {
               const request = await fetch(
-                `${process.env.NEXT_PUBLIC_BACKEND_API}token/`,
+                `${process.env.NEXT_PUBLIC_BACKEND_API}register/`,
                 {
                   method: "POST",
                   headers: {
@@ -53,15 +51,28 @@ export default function LoginPage() {
                 }
               );
               if (request.ok) {
-                router.refresh();
-                router.replace("/");
+                router.push("/");
                 return;
               }
               const errorData = await request.json().catch(() => null);
-              setError("root", {
-                type: "server",
-                message: errorData?.detail ?? "Login failed",
-              });
+              if (errorData) {
+                for (const [field, messages] of Object.entries(errorData)) {
+                  if (field in data) {
+                    setError(field as keyof typeof data, {
+                      type: "server",
+                      message: Array.isArray(messages)
+                        ? messages[0]
+                        : String(messages),
+                    });
+                  }
+                }
+              }
+              if (errorData.detail) {
+                setError("root", {
+                  type: "server",
+                  message: errorData?.detail ?? "Failed",
+                });
+              }
             })}
             className="grid gap-4"
           >
@@ -80,6 +91,18 @@ export default function LoginPage() {
             </div>
 
             <div className="grid gap-2">
+              <Label htmlFor="email">Email</Label>
+              <Input
+                id="email"
+                placeholder="abc@gmail.com"
+                {...register("email")}
+              />
+              {errors.email && (
+                <p className="text-sm text-red-500">{errors.email.message}</p>
+              )}
+            </div>
+
+            <div className="grid gap-2">
               <Label htmlFor="password">Password</Label>
               <Input
                 id="password"
@@ -93,6 +116,21 @@ export default function LoginPage() {
                 </p>
               )}
             </div>
+
+            <div className="grid gap-2">
+              <Label htmlFor="password2">Repeat Password</Label>
+              <Input
+                id="password2"
+                type="password"
+                placeholder="••••••••"
+                {...register("password2")}
+              />
+              {errors.password2 && (
+                <p className="text-sm text-red-500">
+                  {errors.password2.message}
+                </p>
+              )}
+            </div>
             {errors.root?.message && (
               <p className="text-sm text-red-500">{errors.root.message}</p>
             )}
@@ -100,13 +138,13 @@ export default function LoginPage() {
               <Button
                 disabled={isSubmitting}
                 type="submit"
-                className="w-full mb-2 cursor-pointer"
+                className="w-full cursor-pointer mb-2"
               >
-                {isSubmitting ? "Signing in..." : "Sign in"}
+                {isSubmitting ? "Registering..." : "Register"}
               </Button>
-              <Link href="/register">
+              <Link href="/login">
                 <Button className="w-full border-2 border-black bg-white text-black hover:bg-gray-100 transition-colors cursor-pointer">
-                  Register
+                  Login
                 </Button>
               </Link>
             </div>
