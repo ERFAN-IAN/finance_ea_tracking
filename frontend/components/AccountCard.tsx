@@ -1,10 +1,17 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
+import { UpdateAccountForm } from "./forms/UpdateAccountForm";
 
 export function AccountCard({
   account,
 }: {
-  account: { name: string; type: string; balance: number; is_active: boolean };
+  account: {
+    name: string;
+    type: "cash" | "bank" | "card" | "ewallet" | "other";
+    balance: number;
+    is_active: boolean;
+    id: string;
+  };
 }) {
   const formattedBalance = new Intl.NumberFormat("en-US", {
     style: "currency",
@@ -28,14 +35,14 @@ export function AccountCard({
             "px-2 py-0.5 text-[10px] uppercase tracking-wider font-bold rounded-full",
             account.is_active
               ? "bg-emerald-100 text-emerald-700"
-              : "bg-gray-200 text-gray-600",
+              : "bg-gray-200 text-gray-600"
           )}
         >
           {account.is_active ? "Active" : "Inactive"}
         </span>
       </CardHeader>
 
-      <CardContent>
+      <CardContent className="flex justify-between items-end">
         <div className="flex flex-col gap-1">
           <p className="text-sm text-muted-foreground capitalize">
             {account.type}
@@ -44,6 +51,12 @@ export function AccountCard({
             {formattedBalance}
           </p>
         </div>
+        <UpdateAccountForm
+          id={parseInt(account.id)}
+          name={account.name}
+          balance={account.balance}
+          type={account.type}
+        />
       </CardContent>
     </Card>
   );

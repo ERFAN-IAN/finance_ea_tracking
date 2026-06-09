@@ -53,6 +53,7 @@ INSTALLED_APPS = [
     "rest_framework",
 
     # custom
+    'core',
     'finance',
     'users'
 ]
@@ -142,7 +143,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework_simplejwt.authentication.JWTAuthentication',
+        'core.custom_auth.CustomJWTAuthentication',
     )
 }
 
