@@ -1,9 +1,13 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from rest_framework_simplejwt.views import TokenVerifyView, TokenRefreshView
+from finance.views.auth import LoginView, RegisterView
+from finance.views.me import MeView
+from finance.views.viewsets.account import AccountViewset
+from finance.views.viewsets.category import CategoryViewset
+from finance.views.viewsets.expense import ExpenseViewset
 
 router = DefaultRouter()
-from finance.views import RegisterView, MeView, CategoryViewset, AccountViewset, ExpenseViewset, LoginView
 
 router.register(r'categories', CategoryViewset, basename='category')
 router.register(r'accounts', AccountViewset, basename='account')

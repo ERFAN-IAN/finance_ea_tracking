@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { useForm, Controller } from "react-hook-form";
-import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -20,35 +19,19 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { createAccount } from "@/app/actions/accounts";
+import { updateAccount } from "@/actions/accounts";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { SquarePen } from "lucide-react";
+import { UpdateAccountFormData } from "@/types/account";
+import { UpdateAccountSchema, ACCOUNT_TYPES } from "@/schemas/account";
 
-const ACCOUNT_TYPES = [
-  { value: "cash", label: "Cash" },
-  { value: "bank", label: "Bank" },
-  { value: "card", label: "Card" },
-  { value: "ewallet", label: "E-Wallet" },
-  { value: "other", label: "Other" },
-] as const;
-const CreateAccountSchema = z.object({
-  name: z.string().min(1, "Name is required"),
-  type: z.enum(
-    ACCOUNT_TYPES.map((t) => t.value) as [
-      "cash",
-      "bank",
-      "card",
-      "ewallet",
-      "other"
-    ]
-  ),
-  balance: z.coerce.number().min(0, "Balance cannot be negative"),
-});
-
-export type CreateAccountFormData = z.infer<typeof CreateAccountSchema>;
-
-export function CreateAccountForm() {
+export function UpdateAccountForm({
+  account,
+}: {
+  account: UpdateAccountFormData;
+}) {
   const [open, setOpen] = useState(false);
-
+  const { id, name, type, balance } = account;
   const {
     register,
     handleSubmit,
@@ -56,16 +39,17 @@ export function CreateAccountForm() {
     formState: { isSubmitting, errors },
     reset,
   } = useForm({
-    resolver: zodResolver(CreateAccountSchema),
+    resolver: zodResolver(UpdateAccountSchema),
     defaultValues: {
-      name: "",
-      type: "cash",
-      balance: 0,
+      id: id,
+      name: name,
+      type: type,
+      balance: balance,
     },
   });
 
-  async function onSubmit(data: CreateAccountFormData) {
-    const res = await createAccount(data);
+  async function onSubmit(data: UpdateAccountFormData) {
+    const res = await updateAccount(data);
 
     if (!res) return;
 
@@ -74,17 +58,31 @@ export function CreateAccountForm() {
   }
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90">
-        Add Account
-      </DialogTrigger>
+    <Dialog
+      open={open}
+      onOpenChange={(newOpen) => {
+        if (newOpen) {
+          reset({
+            id,
+            name,
+            type,
+            balance,
+          });
+        }
 
+        setOpen(newOpen);
+      }}
+    >
+      <DialogTrigger className="inline-flex h-9 w-9 items-center justify-center rounded-md border bg-background hover:bg-accent">
+        <SquarePen className="h-4 w-4" />
+      </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Create Account</DialogTitle>
+          <DialogTitle>Update Account</DialogTitle>
         </DialogHeader>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+          <input {...register("id")} type="hidden" />
           <Input placeholder="Account name" {...register("name")} />
           {errors.name && (
             <p className="text-sm text-red-500">{errors.name.message}</p>
@@ -124,7 +122,7 @@ export function CreateAccountForm() {
           )}
 
           <Button type="submit" disabled={isSubmitting}>
-            Create
+            Update
           </Button>
         </form>
       </DialogContent>

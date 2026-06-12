@@ -1,19 +1,10 @@
-import { cookies } from "next/headers";
-import { AccountList } from "@/components/AccountList";
-import { CreateAccountForm } from "@/components/forms/CreateAccountForm";
+import { AccountList } from "@/components/account/AccountList";
+import { CreateAccountForm } from "@/components/forms/account/CreateAccountForm";
 import { Suspense } from "react";
+import { Account } from "@/types/account";
+import { AccountListSkeleton } from "@/components/account/AccountListSkeleton";
 
 export default async function Page() {
-  const cookieStore = await cookies();
-  const token = cookieStore.get("access_token")?.value;
-  const res = fetch(`${process.env.BACKEND_API_SERVER}accounts/`, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-    cache: "no-store",
-  }).then(async (res) => {
-    if (res.ok) return res.json();
-  });
   return (
     <main className="p-6 space-y-6">
       <div className="flex justify-between items-center">
@@ -22,8 +13,8 @@ export default async function Page() {
         <CreateAccountForm />
       </div>
 
-      <Suspense fallback="loading ...">
-        <AccountList accountsPromise={res} />
+      <Suspense fallback={<AccountListSkeleton />}>
+        <AccountList />
       </Suspense>
     </main>
   );

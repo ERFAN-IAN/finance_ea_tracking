@@ -1,24 +1,14 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
-import { UpdateAccountForm } from "./forms/UpdateAccountForm";
+import { UpdateAccountForm } from "../forms/account/UpdateAccountForm";
+import { Account } from "@/types/account";
 
-export function AccountCard({
-  account,
-}: {
-  account: {
-    name: string;
-    type: "cash" | "bank" | "card" | "ewallet" | "other";
-    balance: number;
-    is_active: boolean;
-    id: string;
-  };
-}) {
+export function AccountCard({ account }: { account: Account }) {
   const formattedBalance = new Intl.NumberFormat("en-US", {
     style: "currency",
-    currency: "USD",
+    currency: "IRR",
   }).format(account.balance);
 
-  // 2. Define conditional styles
   const activeStyles = account.is_active
     ? "bg-emerald-50/50 border-emerald-200"
     : "bg-muted/30 border-muted";
@@ -28,8 +18,6 @@ export function AccountCard({
     >
       <CardHeader className="flex flex-row items-center justify-between pb-2">
         <CardTitle className="text-lg font-semibold">{account.name}</CardTitle>
-
-        {/* Status Badge */}
         <span
           className={cn(
             "px-2 py-0.5 text-[10px] uppercase tracking-wider font-bold rounded-full",
@@ -51,12 +39,7 @@ export function AccountCard({
             {formattedBalance}
           </p>
         </div>
-        <UpdateAccountForm
-          id={parseInt(account.id)}
-          name={account.name}
-          balance={account.balance}
-          type={account.type}
-        />
+        <UpdateAccountForm account={account} />
       </CardContent>
     </Card>
   );

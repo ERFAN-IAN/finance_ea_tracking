@@ -1,7 +1,7 @@
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { cookies } from "next/headers";
 import { SidebarTrigger, SidebarInset } from "@/components/ui/sidebar";
-import { AppSidebar } from "@/components/DashboardSidebar";
+import { AppSidebar } from "@/components/layout/DashboardSidebar";
 export default async function Layout({
   children,
 }: Readonly<{
