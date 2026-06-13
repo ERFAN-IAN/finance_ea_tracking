@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, LogOut, Settings, Wallet } from "lucide-react";
+import { Home, LogOut, CreditCard, Wallet } from "lucide-react";
 import { logout } from "@/actions/auth";
 
 import {
@@ -26,7 +26,7 @@ const items = [
   {
     title: "Accounts",
     url: "/accounts",
-    icon: Settings,
+    icon: CreditCard,
   },
 ];
 

@@ -7,7 +7,13 @@ class UserOwnedModelViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        return self.queryset.filter(**{self.user_field: self.request.user})
+        if hasattr(self, "queryset") and self.queryset is not None:
+            qs = self.queryset
+        else:
+            model = self.serializer_class.Meta.model
+            qs = model.objects.all()
+
+        return qs.filter(**{self.user_field: self.request.user})
 
     def perform_create(self, serializer):
         serializer.save(**{self.user_field: self.request.user})

@@ -37,7 +37,6 @@ export function CreateAccountForm() {
     resolver: zodResolver(CreateAccountSchema),
     defaultValues: {
       name: "",
-      type: "cash",
       balance: 0,
     },
   });
@@ -53,7 +52,7 @@ export function CreateAccountForm() {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90">
+      <DialogTrigger className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90  cursor-pointer">
         Add Account
       </DialogTrigger>
 
@@ -67,12 +66,19 @@ export function CreateAccountForm() {
           {errors.name && (
             <p className="text-sm text-red-500">{errors.name.message}</p>
           )}
+          <label className=" text-xs" htmlFor="type">
+            Type
+          </label>
           <Controller
             name="type"
             control={control}
             render={({ field }) => (
-              <Select value={field.value} onValueChange={field.onChange}>
-                <SelectTrigger className="w-full">
+              <Select
+                value={field.value || ""}
+                onValueChange={field.onChange}
+                id="type"
+              >
+                <SelectTrigger className="w-full cursor-pointer">
                   <SelectValue>
                     {(value) =>
                       ACCOUNT_TYPES.find((t) => t.value === value)?.label ??
@@ -83,7 +89,11 @@ export function CreateAccountForm() {
 
                 <SelectContent>
                   {ACCOUNT_TYPES.map((type) => (
-                    <SelectItem key={type.value} value={type.value}>
+                    <SelectItem
+                      key={type.value}
+                      value={type.value}
+                      className="cursor-pointer"
+                    >
                       {type.label}
                     </SelectItem>
                   ))}
@@ -95,13 +105,19 @@ export function CreateAccountForm() {
           {errors.type && (
             <p className="text-sm text-red-500">{errors.type.message}</p>
           )}
-
-          <Input placeholder="200" {...register("balance")} />
+          <label className=" text-xs" htmlFor="balance">
+            Balance
+          </label>
+          <Input placeholder="200" id="balance" {...register("balance")} />
           {errors.balance && (
             <p className="text-sm text-red-500">{errors.balance.message}</p>
           )}
 
-          <Button type="submit" disabled={isSubmitting}>
+          <Button
+            type="submit"
+            disabled={isSubmitting}
+            className="cursor-pointer"
+          >
             Create
           </Button>
         </form>

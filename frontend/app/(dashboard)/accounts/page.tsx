@@ -1,10 +1,16 @@
-import { AccountList } from "@/components/account/AccountList";
+import { AccountContainer } from "@/components/account/AccountContainer";
 import { CreateAccountForm } from "@/components/forms/account/CreateAccountForm";
 import { Suspense } from "react";
+import { AccountContainerSkeleton } from "@/components/account/AccountContainerSkeleton";
+import { serverFetch } from "@/lib/fetch/server";
 import { Account } from "@/types/account";
-import { AccountListSkeleton } from "@/components/account/AccountListSkeleton";
 
 export default async function Page() {
+  const response: Promise<Account[]> = serverFetch(`accounts`, {
+    next: {
+      revalidate: 60,
+    },
+  }).then((res) => res.json());
   return (
     <main className="p-6 space-y-6">
       <div className="flex justify-between items-center">
@@ -13,8 +19,8 @@ export default async function Page() {
         <CreateAccountForm />
       </div>
 
-      <Suspense fallback={<AccountListSkeleton />}>
-        <AccountList />
+      <Suspense fallback={<AccountContainerSkeleton />}>
+        <AccountContainer accountPromise={response} />
       </Suspense>
     </main>
   );

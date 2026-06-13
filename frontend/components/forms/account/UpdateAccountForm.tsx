@@ -73,7 +73,7 @@ export function UpdateAccountForm({
         setOpen(newOpen);
       }}
     >
-      <DialogTrigger className="inline-flex h-9 w-9 items-center justify-center rounded-md border bg-background hover:bg-accent">
+      <DialogTrigger className="inline-flex h-9 w-9 items-center justify-center rounded-md border bg-background hover:bg-accent cursor-pointer">
         <SquarePen className="h-4 w-4" />
       </DialogTrigger>
       <DialogContent>
@@ -87,12 +87,19 @@ export function UpdateAccountForm({
           {errors.name && (
             <p className="text-sm text-red-500">{errors.name.message}</p>
           )}
+          <label className=" text-xs" htmlFor="type">
+            Type
+          </label>
           <Controller
             name="type"
             control={control}
             render={({ field }) => (
-              <Select value={field.value} onValueChange={field.onChange}>
-                <SelectTrigger className="w-full">
+              <Select
+                value={field.value}
+                onValueChange={field.onChange}
+                id="type"
+              >
+                <SelectTrigger className="w-full cursor-pointer">
                   <SelectValue>
                     {(value) =>
                       ACCOUNT_TYPES.find((t) => t.value === value)?.label ??
@@ -103,7 +110,11 @@ export function UpdateAccountForm({
 
                 <SelectContent>
                   {ACCOUNT_TYPES.map((type) => (
-                    <SelectItem key={type.value} value={type.value}>
+                    <SelectItem
+                      key={type.value}
+                      value={type.value}
+                      className="cursor-pointer"
+                    >
                       {type.label}
                     </SelectItem>
                   ))}
@@ -115,13 +126,19 @@ export function UpdateAccountForm({
           {errors.type && (
             <p className="text-sm text-red-500">{errors.type.message}</p>
           )}
-
-          <Input placeholder="200" {...register("balance")} />
+          <label className=" text-xs" htmlFor="balance">
+            Balance
+          </label>
+          <Input placeholder="200" id="balance" {...register("balance")} />
           {errors.balance && (
             <p className="text-sm text-red-500">{errors.balance.message}</p>
           )}
 
-          <Button type="submit" disabled={isSubmitting}>
+          <Button
+            type="submit"
+            disabled={isSubmitting}
+            className="cursor-pointer"
+          >
             Update
           </Button>
         </form>

@@ -4,25 +4,40 @@ import { revalidatePath } from "next/cache";
 import {
   type UpdateAccountFormData,
   type CreateAccountFormData,
+  DeleteAccountFormData,
 } from "@/types/account";
 import { AccountSchema } from "@/schemas/account";
 import { serverFetch } from "@/lib/fetch/server";
-import { CreateAccountSchema, UpdateAccountSchema } from "@/schemas/account";
+import {
+  CreateAccountSchema,
+  UpdateAccountSchema,
+  DeleteAccountSchema,
+} from "@/schemas/account";
 
 const handleAccountActions = async (
-  method: "POST" | "PATCH",
-  formData: CreateAccountFormData | UpdateAccountFormData,
-  url?: string
+  method: "POST" | "PATCH" | "DELETE",
+  formData:
+    | CreateAccountFormData
+    | UpdateAccountFormData
+    | DeleteAccountFormData,
+  url?: string,
 ) => {
-  const res = await serverFetch(`accounts${url ? "/" : ""}${url}`, {
+  const res = await serverFetch(`accounts${url ? `/${url}` : ""}`, {
     method,
     body: JSON.stringify(formData),
   });
-
   if (!res.ok) {
     return {
       success: false,
       error: await res.json(),
+    };
+  }
+
+  if (method === "DELETE") {
+    revalidatePath("/accounts");
+
+    return {
+      success: true,
     };
   }
 
@@ -46,7 +61,7 @@ const handleAccountActions = async (
 export async function createAccount(formData: CreateAccountFormData) {
   return await handleAccountActions(
     "POST",
-    CreateAccountSchema.parse(formData)
+    CreateAccountSchema.parse(formData),
   );
 }
 
@@ -54,6 +69,14 @@ export async function updateAccount(formData: UpdateAccountFormData) {
   return await handleAccountActions(
     "PATCH",
     UpdateAccountSchema.parse(formData),
-    `${formData.id}`
+    `${formData.id}`,
+  );
+}
+
+export async function deleteAccount(formData: DeleteAccountFormData) {
+  return await handleAccountActions(
+    "DELETE",
+    DeleteAccountSchema.parse(formData),
+    `${formData.id}`,
   );
 }

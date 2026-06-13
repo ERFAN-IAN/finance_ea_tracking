@@ -2,6 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { UpdateAccountForm } from "../forms/account/UpdateAccountForm";
 import { Account } from "@/types/account";
+import { DeleteAccountForm } from "../forms/account/DeleteAccountForm";
 
 export function AccountCard({ account }: { account: Account }) {
   const formattedBalance = new Intl.NumberFormat("en-US", {
@@ -9,37 +10,58 @@ export function AccountCard({ account }: { account: Account }) {
     currency: "IRR",
   }).format(account.balance);
 
-  const activeStyles = account.is_active
-    ? "bg-emerald-50/50 border-emerald-200"
-    : "bg-muted/30 border-muted";
+  const isActive = account.is_active;
+
+  const cardStyles = isActive
+    ? "border-2 border-sky-200 bg-gradient-to-br from-sky-50/70 via-slate-50 to-white hover:border-sky-300"
+    : "border-2 border-border bg-muted/40";
+
+  const statusStyles = isActive
+    ? "bg-sky-100 text-sky-800 ring-1 ring-sky-200"
+    : "bg-slate-100 text-slate-600 ring-1 ring-slate-200";
+
   return (
     <Card
-      className={cn("transition-colors duration-200 border-2", activeStyles)}
+      className={cn(
+        "transition-all duration-200 shadow-sm hover:shadow-md",
+        cardStyles,
+      )}
     >
-      <CardHeader className="flex flex-row items-center justify-between pb-2">
-        <CardTitle className="text-lg font-semibold">{account.name}</CardTitle>
+      <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
+        <CardTitle className="text-lg font-semibold tracking-tight">
+          {account.name}
+        </CardTitle>
+
         <span
           className={cn(
-            "px-2 py-0.5 text-[10px] uppercase tracking-wider font-bold rounded-full",
-            account.is_active
-              ? "bg-emerald-100 text-emerald-700"
-              : "bg-gray-200 text-gray-600"
+            "inline-flex items-center gap-1 px-2 py-0.5 text-[10px] uppercase tracking-[0.12em] font-semibold rounded-full",
+            statusStyles,
           )}
         >
-          {account.is_active ? "Active" : "Inactive"}
+          <span
+            className={cn(
+              "h-1.5 w-1.5 rounded-full",
+              isActive ? "bg-sky-500" : "bg-slate-400",
+            )}
+          />
+          {isActive ? "Active" : "Inactive"}
         </span>
       </CardHeader>
 
-      <CardContent className="flex justify-between items-end">
+      <CardContent className="flex justify-between items-end gap-4">
         <div className="flex flex-col gap-1">
-          <p className="text-sm text-muted-foreground capitalize">
+          <p className="text-xs font-medium uppercase tracking-[0.16em] text-slate-500">
             {account.type}
           </p>
-          <p className="text-3xl font-bold tracking-tight">
+
+          <p className="text-3xl font-semibold tracking-tight text-slate-900">
             {formattedBalance}
           </p>
         </div>
-        <UpdateAccountForm account={account} />
+        <div className="flex gap-2">
+          <UpdateAccountForm account={account} />
+          <DeleteAccountForm account={account} />
+        </div>
       </CardContent>
     </Card>
   );

@@ -23,7 +23,9 @@ class Category(TimeStampMixin):
 
     class Meta:
         constraints = [
-            models.UniqueConstraint(fields=["user", "name"], name="uniq_category_per_user"),
+            models.UniqueConstraint(
+                fields=["user", "name"], name="uniq_category_per_user"
+            ),
         ]
 
     def __str__(self):
@@ -50,7 +52,9 @@ class Account(TimeStampMixin):
 
     class Meta:
         constraints = [
-            models.UniqueConstraint(fields=["user", "name"], name="uniq_account_name_per_user"),
+            models.UniqueConstraint(
+                fields=["user", "name"], name="uniq_account_name_per_user"
+            ),
         ]
 
     def __str__(self) -> str:
@@ -101,7 +105,11 @@ class Expense(TimeStampMixin):
 
     @property
     def paid_amount(self) -> int:
-        agg = self.payments.filter(status=Payment.PaymentStatus.COMPLETED).aggregate(total=Sum("amount")).get("total")
+        agg = (
+            self.payments.filter(status=Payment.PaymentStatus.COMPLETED)
+            .aggregate(total=Sum("amount"))
+            .get("total")
+        )
         return int(agg or 0)
 
     @property
@@ -137,7 +145,9 @@ class Payment(TimeStampMixin):
     amount = models.PositiveBigIntegerField()
     opening = models.BooleanField(default=False)
     paid_on = models.DateField(default=timezone.localdate)
-    status = models.CharField(max_length=20, choices=PaymentStatus.choices, default=PaymentStatus.COMPLETED)
+    status = models.CharField(
+        max_length=20, choices=PaymentStatus.choices, default=PaymentStatus.COMPLETED
+    )
     note = models.TextField(blank=True)
 
     def __str__(self):
@@ -205,21 +215,31 @@ class AccountTransaction(TimeStampMixin):
 
         if self.source_type == self.SourceType.TRANSFER:
             if not self.transfer_group_id:
-                errors["transfer_group_id"] = "transfer_group_id is required for transfers."
+                errors["transfer_group_id"] = (
+                    "transfer_group_id is required for transfers."
+                )
             if self.external_address and self.direction != self.Direction.OUTFLOW:
-                errors["external_address"] = "external_address is only valid for OUTFLOW transfers."
+                errors["external_address"] = (
+                    "external_address is only valid for OUTFLOW transfers."
+                )
 
         elif self.source_type == self.SourceType.REFUND:
             if self.direction != self.Direction.INFLOW:
                 errors["direction"] = "Refund transactions must be INFLOW."
             if self.transfer_group_id:
-                errors["transfer_group_id"] = "transfer_group_id can only be set for transfers."
+                errors["transfer_group_id"] = (
+                    "transfer_group_id can only be set for transfers."
+                )
 
         elif self.source_type == self.SourceType.ADJUSTMENT:
             if self.transfer_group_id:
-                errors["transfer_group_id"] = "transfer_group_id can only be set for transfers."
+                errors["transfer_group_id"] = (
+                    "transfer_group_id can only be set for transfers."
+                )
             if self.external_address:
-                errors["external_address"] = "external_address is not allowed for adjustments."
+                errors["external_address"] = (
+                    "external_address is not allowed for adjustments."
+                )
 
         if self.source_type == self.SourceType.PAYMENT:
             if not self.payment_id:
@@ -227,9 +247,13 @@ class AccountTransaction(TimeStampMixin):
             if self.direction != self.Direction.OUTFLOW:
                 errors["direction"] = "Payment transactions must be OUTFLOW."
             if self.transfer_group_id:
-                errors["transfer_group_id"] = "transfer_group_id can only be set for transfers."
+                errors["transfer_group_id"] = (
+                    "transfer_group_id can only be set for transfers."
+                )
             if self.external_address:
-                errors["external_address"] = "external_address is not allowed for payment transactions."
+                errors["external_address"] = (
+                    "external_address is not allowed for payment transactions."
+                )
 
         if errors:
             raise ValidationError(errors)
@@ -262,8 +286,13 @@ class InstallmentPlan(TimeStampMixin):
     def clean(self):
         errors = {}
 
-        if self.expense_id and self.expense.expense_type != Expense.ExpenseType.INSTALLMENT:
-            errors["expense"] = "Expense type must be 'installment' to attach InstallmentPlan."
+        if (
+            self.expense_id
+            and self.expense.expense_type != Expense.ExpenseType.INSTALLMENT
+        ):
+            errors["expense"] = (
+                "Expense type must be 'installment' to attach InstallmentPlan."
+            )
 
         if self.total_installments < 1:
             errors["total_installments"] = "total_installments must be >= 1."
@@ -276,13 +305,19 @@ class InstallmentPlan(TimeStampMixin):
                 self.due_day_of_month = self.first_due_date.day
 
             if self.due_day_of_month is None:
-                errors["due_day_of_month"] = "due_day_of_month is required for monthly installments."
+                errors["due_day_of_month"] = (
+                    "due_day_of_month is required for monthly installments."
+                )
             elif not (1 <= self.due_day_of_month <= 31):
-                errors["due_day_of_month"] = "due_day_of_month must be between 1 and 31."
+                errors["due_day_of_month"] = (
+                    "due_day_of_month must be between 1 and 31."
+                )
 
         else:
             if self.due_day_of_month is not None:
-                errors["due_day_of_month"] = "due_day_of_month is only valid for monthly schedule_type."
+                errors["due_day_of_month"] = (
+                    "due_day_of_month is only valid for monthly schedule_type."
+                )
 
         if errors:
             raise ValidationError(errors)
@@ -303,7 +338,9 @@ class InstallmentItem(TimeStampMixin):
     sequence = models.PositiveIntegerField()
     due_date = models.DateField()
     amount = models.PositiveBigIntegerField()
-    status = models.CharField(max_length=20, choices=Status.choices, default=Status.PENDING)
+    status = models.CharField(
+        max_length=20, choices=Status.choices, default=Status.PENDING
+    )
     payment = models.OneToOneField(
         Payment,
         on_delete=models.SET_NULL,
@@ -314,7 +351,9 @@ class InstallmentItem(TimeStampMixin):
 
     class Meta:
         constraints = [
-            models.UniqueConstraint(fields=["plan", "sequence"], name="uniq_installment_sequence_per_plan"),
+            models.UniqueConstraint(
+                fields=["plan", "sequence"], name="uniq_installment_sequence_per_plan"
+            ),
         ]
 
     def clean(self):
@@ -353,20 +392,31 @@ class RecurringExpensePlan(TimeStampMixin):
         if self.end_date and self.end_date < self.start_date:
             errors["end_date"] = "end_date cannot be before start_date."
 
-        if self.expense_id and self.expense.expense_type != Expense.ExpenseType.RECURRING:
-            errors["expense"] = "Expense type must be 'recurring' to attach RecurringExpensePlan."
+        if (
+            self.expense_id
+            and self.expense.expense_type != Expense.ExpenseType.RECURRING
+        ):
+            errors["expense"] = (
+                "Expense type must be 'recurring' to attach RecurringExpensePlan."
+            )
 
         if self.frequency == self.Frequency.MONTHLY:
             if self.due_day_of_month is None:
                 if self.start_date:
                     self.due_day_of_month = self.start_date.day
                 else:
-                    errors["due_day_of_month"] = "due_day_of_month is required for monthly recurring plans."
+                    errors["due_day_of_month"] = (
+                        "due_day_of_month is required for monthly recurring plans."
+                    )
             elif not (1 <= self.due_day_of_month <= 31):
-                errors["due_day_of_month"] = "due_day_of_month must be between 1 and 31."
+                errors["due_day_of_month"] = (
+                    "due_day_of_month must be between 1 and 31."
+                )
         else:
             if self.due_day_of_month is not None:
-                errors["due_day_of_month"] = "due_day_of_month is only allowed for monthly recurring plans."
+                errors["due_day_of_month"] = (
+                    "due_day_of_month is only allowed for monthly recurring plans."
+                )
 
         if errors:
             raise ValidationError(errors)
@@ -388,7 +438,9 @@ class RecurringExpenseOccurrence(TimeStampMixin):
     due_date = models.DateField()
     sequence = models.PositiveIntegerField()
     expected_amount = models.PositiveBigIntegerField()
-    status = models.CharField(max_length=20, choices=Status.choices, default=Status.PENDING)
+    status = models.CharField(
+        max_length=20, choices=Status.choices, default=Status.PENDING
+    )
     payment = models.OneToOneField(
         Payment,
         on_delete=models.SET_NULL,
@@ -399,5 +451,8 @@ class RecurringExpenseOccurrence(TimeStampMixin):
 
     class Meta:
         constraints = [
-            models.UniqueConstraint(fields=["plan", "sequence"], name="uniq_recurring_occurrence_per_plan_sequence"),
+            models.UniqueConstraint(
+                fields=["plan", "sequence"],
+                name="uniq_recurring_occurrence_per_plan_sequence",
+            ),
         ]

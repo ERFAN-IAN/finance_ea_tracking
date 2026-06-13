@@ -14,14 +14,16 @@ export const AccountTypeSchema = z.enum(
     "bank",
     "card",
     "ewallet",
-    "other"
-  ]
+    "other",
+  ],
 );
 
 export const AccountSchema = z.object({
   id: z.number(),
   name: z.string().trim().min(1, "Name is required"),
-  type: AccountTypeSchema,
+  type: AccountTypeSchema.optional().refine((val) => val !== undefined, {
+    message: "Account type is required",
+  }),
   balance: z.number(),
   is_active: z.boolean(),
 });
@@ -39,4 +41,8 @@ export const CreateAccountSchema = UpdateAccountSchema.pick({
   name: true,
   type: true,
   balance: true,
+});
+
+export const DeleteAccountSchema = UpdateAccountSchema.pick({
+  id: true,
 });

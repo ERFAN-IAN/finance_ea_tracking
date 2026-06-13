@@ -2,7 +2,7 @@ import { cookies } from "next/headers";
 export async function serverFetch(
   path: string,
   options: RequestInit = {},
-  json = true
+  json = true,
 ) {
   const token = (await cookies()).get("access_token")?.value;
 
