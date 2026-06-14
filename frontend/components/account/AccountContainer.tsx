@@ -8,14 +8,44 @@ import { AccountCard } from "@/components/account/AccountCard";
 import { Account } from "@/types/account";
 import { AccountSchema } from "@/schemas/account";
 import { FetchError } from "@/components/layout/FetchError";
+import { PaginatedResponse } from "@/types";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
+import { useRouter, useSearchParams } from "next/navigation";
 
 export function AccountContainer({
   accountPromise,
 }: {
-  accountPromise: Promise<Account[]>;
+  accountPromise: Promise<PaginatedResponse<Account> | { detail: string }>;
 }) {
   const promiseData = use(accountPromise);
-  const { data, success } = AccountSchema.array().safeParse(promiseData);
+  if ("detail" in promiseData) {
+    return <FetchError message={promiseData.detail} />;
+  }
+
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
+  const page = Number(searchParams.get("page") ?? 1);
+  const pageSize = 10;
+
+  const goToPage = (newPage: number) => {
+    const params = new URLSearchParams(searchParams);
+    const biggestPage = Math.ceil(promiseData.count / pageSize);
+
+    params.set("page", String(Math.min(Math.max(newPage, 1), biggestPage)));
+
+    router.push(`?${params.toString()}`);
+  };
+
+  const { data, success } = AccountSchema.array().safeParse(
+    promiseData.results,
+  );
   const [isGrid, setIsGrid] = useState<boolean>();
   const [isMounted, setIsMounted] = useState<boolean>(false);
 
@@ -24,7 +54,8 @@ export function AccountContainer({
     setIsMounted(true);
   }, []);
 
-  if (!success) return <FetchError message="Something went wrong" />;
+  if (!success) return <FetchError message={`Something went wrong`} />;
+  if (promiseData.count === 0) return <p>No accounts yet</p>;
   if (isMounted)
     return (
       <div className="space-y-6">
@@ -72,6 +103,20 @@ export function AccountContainer({
             ))}
           </motion.div>
         </AnimatePresence>
+        <Pagination>
+          <PaginationContent>
+            {promiseData.previous && (
+              <PaginationItem>
+                <PaginationPrevious onClick={() => goToPage(page - 1)} />
+              </PaginationItem>
+            )}
+            {promiseData.next && (
+              <PaginationItem>
+                <PaginationNext onClick={() => goToPage(page + 1)} />
+              </PaginationItem>
+            )}
+          </PaginationContent>
+        </Pagination>
       </div>
     );
 }

@@ -21,7 +21,7 @@ class LoginView(TokenObtainPairView):
                 httponly=True,
                 secure=False,
                 samesite="Lax",
-                max_age=settings.SIMPLE_JWT['ACCESS_TOKEN_LIFETIME'],
+                max_age=settings.SIMPLE_JWT["ACCESS_TOKEN_LIFETIME"],
             )
 
         if refresh:
@@ -31,7 +31,7 @@ class LoginView(TokenObtainPairView):
                 httponly=True,
                 secure=False,
                 samesite="Lax",
-                max_age=settings.SIMPLE_JWT['REFRESH_TOKEN_LIFETIME'],
+                max_age=settings.SIMPLE_JWT["REFRESH_TOKEN_LIFETIME"],
             )
 
         return response

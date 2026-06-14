@@ -3,7 +3,7 @@ import { serverFetch } from "@/lib/fetch/server";
 import { UserSchema } from "@/schemas/user";
 
 export default async function Home() {
-  const response = await serverFetch("me", {
+  const response = await serverFetch("me/", {
     cache: "force-cache",
   });
   const { data, success, error } = UserSchema.safeParse(await response.json());

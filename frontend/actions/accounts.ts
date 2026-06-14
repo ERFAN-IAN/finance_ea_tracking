@@ -22,7 +22,7 @@ const handleAccountActions = async (
     | DeleteAccountFormData,
   url?: string,
 ) => {
-  const res = await serverFetch(`accounts${url ? `/${url}` : ""}`, {
+  const res = await serverFetch(`accounts${url ? `/${url}` : ""}/`, {
     method,
     body: JSON.stringify(formData),
   });

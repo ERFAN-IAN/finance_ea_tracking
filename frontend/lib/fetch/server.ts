@@ -6,7 +6,7 @@ export async function serverFetch(
 ) {
   const token = (await cookies()).get("access_token")?.value;
 
-  return fetch(`${process.env.BACKEND_API_SERVER}${path}/`, {
+  return fetch(`${process.env.BACKEND_API_SERVER}${path}`, {
     ...options,
     headers: {
       ...options.headers,
