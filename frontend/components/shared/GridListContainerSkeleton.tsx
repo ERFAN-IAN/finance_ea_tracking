@@ -1,12 +1,13 @@
-import { AccountCardSkeleton } from "@/components/account/AccountCardSkeleton";
 import { Skeleton } from "@/components/ui/skeleton";
 
-export function AccountContainerSkeleton({
+export function GridListContainerSkeleton({
   isGrid = true,
   count = 6,
+  SkeletonItem,
 }: {
   isGrid?: boolean;
   count?: number;
+  SkeletonItem: React.ComponentType;
 }) {
   return (
     <div className="space-y-6">
@@ -24,7 +25,7 @@ export function AccountContainerSkeleton({
       >
         {Array.from({ length: count }).map((_, i) => (
           <div key={i} className="w-full">
-            <AccountCardSkeleton />
+            <SkeletonItem />
           </div>
         ))}
       </div>

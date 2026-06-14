@@ -1,8 +1,8 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
-import { UpdateAccountForm } from "../forms/account/UpdateAccountForm";
+import { UpdateAccountForm } from "../../forms/account/UpdateAccountForm";
 import { Account } from "@/types/account";
-import { DeleteAccountForm } from "../forms/account/DeleteAccountForm";
+import { DeleteAccountForm } from "../../forms/account/DeleteAccountForm";
 
 export function AccountCard({ account }: { account: Account }) {
   const formattedBalance = new Intl.NumberFormat("en-US", {

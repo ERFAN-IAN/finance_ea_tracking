@@ -1,13 +1,12 @@
 import { CreateAccountForm } from "@/components/forms/account/CreateAccountForm";
 import { Suspense } from "react";
-import { GridListContainerSkeleton } from "@/components/shared/GridListContainerSkeleton";
 import { serverFetch } from "@/lib/fetch/server";
-import { Account } from "@/types/account";
 import { PaginatedResponse } from "@/types";
 import { GridListContainer } from "@/components/shared/GridListContainer";
-import { AccountSchema } from "@/schemas/account";
-import { AccountCard } from "@/components/sections/account/AccountCard";
-import { AccountCardSkeleton } from "@/components/sections/account/AccountCardSkeleton";
+import { Category } from "@/types/category";
+import { CategorySchema } from "@/schemas/category";
+import { CategoryCard } from "@/components/sections/category/CategoryCard";
+import { CategoryCardSkeleton } from "@/components/sections/category/CategoryCardSkeleton";
 
 export default async function Page({
   searchParams,
@@ -17,8 +16,8 @@ export default async function Page({
   const params = await searchParams;
 
   const page = Number(params.page ?? 1);
-  const response: Promise<PaginatedResponse<Account> | { detail: string }> =
-    serverFetch(`accounts?page=${page}`, {
+  const response: Promise<PaginatedResponse<Category> | { detail: string }> =
+    serverFetch(`categories?page=${page}`, {
       next: {
         revalidate: 60,
       },
@@ -35,21 +34,17 @@ export default async function Page({
   return (
     <main className="p-6 space-y-6">
       <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold">Accounts</h1>
+        <h1 className="text-2xl font-bold">Categories</h1>
 
         <CreateAccountForm />
       </div>
 
-      <Suspense
-        fallback={
-          <GridListContainerSkeleton SkeletonItem={AccountCardSkeleton} />
-        }
-      >
+      <Suspense fallback={<CategoryCardSkeleton />}>
         <GridListContainer
           promise={response}
-          schema={AccountSchema}
-          emptyMessage="No Accounts found."
-          renderItem={(account) => <AccountCard account={account} />}
+          schema={CategorySchema}
+          emptyMessage="No Categories found."
+          renderItem={(category) => <CategoryCard category={category} />}
         />
       </Suspense>
     </main>
