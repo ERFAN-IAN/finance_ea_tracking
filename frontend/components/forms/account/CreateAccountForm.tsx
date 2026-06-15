@@ -33,6 +33,7 @@ export function CreateAccountForm() {
     control,
     formState: { isSubmitting, errors },
     reset,
+    setError,
   } = useForm({
     resolver: zodResolver(CreateAccountSchema),
     defaultValues: {
@@ -44,7 +45,16 @@ export function CreateAccountForm() {
   async function onSubmit(data: CreateAccountFormData) {
     const res = await createAccount(data);
 
-    if (!res.success) return;
+    if (!res.success) {
+      if (res.fieldErrors) {
+        for (const [field, message] of Object.entries(res.fieldErrors)) {
+          setError(field as keyof CreateAccountFormData, {
+            message: message[0],
+          });
+        }
+      }
+      return;
+    }
 
     reset();
     setOpen(false);

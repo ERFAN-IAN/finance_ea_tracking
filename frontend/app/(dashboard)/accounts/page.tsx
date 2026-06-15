@@ -3,8 +3,8 @@ import { CreateAccountForm } from "@/components/forms/account/CreateAccountForm"
 import { Suspense } from "react";
 import { AccountContainerSkeleton } from "@/components/account/AccountContainerSkeleton";
 import { serverFetch } from "@/lib/fetch/server";
-import { Account } from "@/types/account";
-import { PaginatedResponse } from "@/types";
+import { PaginatedResponseSchema } from "@/schemas";
+import { AccountSchema } from "@/schemas/account";
 
 export default async function Page({
   searchParams,
@@ -14,20 +14,15 @@ export default async function Page({
   const params = await searchParams;
 
   const page = Number(params.page ?? 1);
-  const response: Promise<PaginatedResponse<Account> | { detail: string }> =
-    serverFetch(`accounts?page=${page}`, {
+  const response = serverFetch(
+    `accounts?page=${page}`,
+    {
       next: {
         revalidate: 60,
       },
-    }).then(async (res) => {
-      if (res.ok) {
-        return res.json();
-      }
-      const body = await res.json().catch(() => null);
-      return {
-        detail: body?.detail ?? "Request failed",
-      };
-    });
+    },
+    PaginatedResponseSchema(AccountSchema),
+  );
 
   return (
     <main className="p-6 space-y-6">

@@ -6,7 +6,6 @@ import { AnimatePresence, motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { AccountCard } from "@/components/account/AccountCard";
 import { Account } from "@/types/account";
-import { AccountSchema } from "@/schemas/account";
 import { FetchError } from "@/components/layout/FetchError";
 import { PaginatedResponse } from "@/types";
 import {
@@ -17,15 +16,24 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination";
 import { useRouter, useSearchParams } from "next/navigation";
+import { ApiResult } from "@/lib/fetch/server";
 
 export function AccountContainer({
   accountPromise,
 }: {
-  accountPromise: Promise<PaginatedResponse<Account> | { detail: string }>;
+  accountPromise: Promise<ApiResult<PaginatedResponse<Account>>>;
 }) {
   const promiseData = use(accountPromise);
-  if ("detail" in promiseData) {
-    return <FetchError message={promiseData.detail} />;
+  if (!promiseData.success) {
+    if (
+      typeof promiseData.data === "object" &&
+      promiseData.data !== null &&
+      "detail" in promiseData.data &&
+      typeof promiseData.data.detail === "string"
+    ) {
+      return <FetchError message={promiseData.data?.detail} />;
+    }
+    return <FetchError message="Something went wrong!" />;
   }
 
   const router = useRouter();
@@ -36,16 +44,13 @@ export function AccountContainer({
 
   const goToPage = (newPage: number) => {
     const params = new URLSearchParams(searchParams);
-    const biggestPage = Math.ceil(promiseData.count / pageSize);
+    const biggestPage = Math.ceil(promiseData.data.count / pageSize);
 
     params.set("page", String(Math.min(Math.max(newPage, 1), biggestPage)));
 
     router.push(`?${params.toString()}`);
   };
 
-  const { data, success } = AccountSchema.array().safeParse(
-    promiseData.results,
-  );
   const [isGrid, setIsGrid] = useState<boolean>();
   const [isMounted, setIsMounted] = useState<boolean>(false);
 
@@ -53,9 +58,7 @@ export function AccountContainer({
     setIsGrid(localStorage.getItem("grid") === "true");
     setIsMounted(true);
   }, []);
-
-  if (!success) return <FetchError message={`Something went wrong`} />;
-  if (promiseData.count === 0) return <p>No accounts yet</p>;
+  if (promiseData.data.count === 0) return <p>No accounts yet</p>;
   if (isMounted)
     return (
       <div className="space-y-6">
@@ -96,7 +99,7 @@ export function AccountContainer({
               isGrid ? "grid-cols-1 sm:grid-cols-2" : "grid-cols-1"
             }`}
           >
-            {data.map((item) => (
+            {promiseData.data.results.map((item) => (
               <div key={item.id} className="w-full">
                 <AccountCard account={item} />
               </div>
@@ -105,12 +108,12 @@ export function AccountContainer({
         </AnimatePresence>
         <Pagination>
           <PaginationContent>
-            {promiseData.previous && (
+            {promiseData.data.previous && (
               <PaginationItem>
                 <PaginationPrevious onClick={() => goToPage(page - 1)} />
               </PaginationItem>
             )}
-            {promiseData.next && (
+            {promiseData.data.next && (
               <PaginationItem>
                 <PaginationNext onClick={() => goToPage(page + 1)} />
               </PaginationItem>
