@@ -16,6 +16,13 @@ const loginSchema = z.object({
   password: z.string().min(1, "Password is required"),
 });
 
+function getCookie(name: string) {
+  return document.cookie
+    .split("; ")
+    .find((c) => c.startsWith(`${name}=`))
+    ?.split("=")[1];
+}
+
 export default function LoginPage() {
   const {
     register,
@@ -41,16 +48,28 @@ export default function LoginPage() {
         <CardContent>
           <form
             onSubmit={handleSubmit(async (data) => {
+              const csrf = getCookie("csrftoken");
+              if (!csrf) {
+                const csrfRequset = await fetch(
+                  `${process.env.NEXT_PUBLIC_BACKEND_API}csrf/`,
+                );
+                if (!csrfRequset.ok) {
+                  setError("root", { message: "login failed." });
+                  return;
+                }
+              }
+
               const request = await fetch(
-                `${process.env.NEXT_PUBLIC_BACKEND_API}token/`,
+                `${process.env.NEXT_PUBLIC_BACKEND_API}login/`,
                 {
                   method: "POST",
                   headers: {
                     "Content-Type": "application/json",
+                    "X-CSRFToken": getCookie("csrftoken") as string,
                   },
                   credentials: "include",
                   body: JSON.stringify(data),
-                }
+                },
               );
               if (request.ok) {
                 router.refresh();

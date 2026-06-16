@@ -139,27 +139,11 @@ STATIC_URL = "static/"
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 REST_FRAMEWORK = {
-    "DEFAULT_AUTHENTICATION_CLASSES": ("core.custom_auth.CustomJWTAuthentication",),
+    "DEFAULT_AUTHENTICATION_CLASSES": [
+        "rest_framework.authentication.SessionAuthentication",
+    ],
     "DEFAULT_PAGINATION_CLASS": ("rest_framework.pagination.PageNumberPagination"),
     "PAGE_SIZE": 10,
 }
 
 AUTH_USER_MODEL = "users.CustomUser"
-
-CORS_ALLOW_CREDENTIALS = True if not PRODUCTION else False
-CORS_ALLOWED_ORIGINS = (
-    [
-        "http://localhost:3000",
-    ]
-    if not PRODUCTION
-    else []
-)
-
-SIMPLE_JWT = {
-    "ACCESS_TOKEN_LIFETIME": timedelta(
-        minutes=int(os.getenv("ACCESS_TOKEN_LIFETIME_MINUTES"))
-    ),
-    "REFRESH_TOKEN_LIFETIME": timedelta(
-        days=int(os.getenv("REFRESH_TOKEN_LIFETIME_DAYS"))
-    ),
-}

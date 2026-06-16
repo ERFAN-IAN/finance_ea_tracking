@@ -1,13 +1,9 @@
 "use server";
 
-import { cookies } from "next/headers";
+import { serverFetch } from "@/lib/fetch/server";
 import { redirect } from "next/navigation";
 
 export async function logout() {
-  const cookieStore = await cookies();
-
-  cookieStore.delete("access_token");
-  cookieStore.delete("refresh_token");
-
-  redirect("/login");
+  const response = await serverFetch("logout/", { method: "POST" });
+  if (response.success) return redirect("/login");
 }
