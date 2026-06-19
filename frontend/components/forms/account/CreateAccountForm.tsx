@@ -23,6 +23,7 @@ import { createAccount } from "@/actions/accounts";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { CreateAccountFormData } from "@/types/account";
 import { CreateAccountSchema, ACCOUNT_TYPES } from "@/schemas/account";
+import { setFormError } from "@/lib/formError";
 
 export function CreateAccountForm() {
   const [open, setOpen] = useState(false);
@@ -46,13 +47,7 @@ export function CreateAccountForm() {
     const res = await createAccount(data);
 
     if (!res.success) {
-      if (res.fieldErrors) {
-        for (const [field, message] of Object.entries(res.fieldErrors)) {
-          setError(field as keyof CreateAccountFormData, {
-            message: message[0],
-          });
-        }
-      }
+      setFormError(res, setError);
       return;
     }
 

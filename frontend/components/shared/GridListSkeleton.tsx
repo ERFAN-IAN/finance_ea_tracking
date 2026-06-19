@@ -1,10 +1,12 @@
-import { AccountCardSkeleton } from "@/components/account/AccountCardSkeleton";
 import { Skeleton } from "@/components/ui/skeleton";
+import { JSX } from "react/jsx-runtime";
 
-export function AccountContainerSkeleton({
+export function GridListContainerSkeleton({
+  CardSkeleton,
   isGrid = true,
   count = 6,
 }: {
+  CardSkeleton: JSX.Element;
   isGrid?: boolean;
   count?: number;
 }) {
@@ -24,7 +26,7 @@ export function AccountContainerSkeleton({
       >
         {Array.from({ length: count }).map((_, i) => (
           <div key={i} className="w-full">
-            <AccountCardSkeleton />
+            {CardSkeleton}
           </div>
         ))}
       </div>

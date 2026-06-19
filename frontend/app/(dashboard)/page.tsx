@@ -1,4 +1,4 @@
-import { FetchError } from "@/components/layout/FetchError";
+import { FetchError } from "@/components/shared/FetchError";
 import { serverFetch } from "@/lib/fetch/server";
 import { UserSchema } from "@/schemas/user";
 

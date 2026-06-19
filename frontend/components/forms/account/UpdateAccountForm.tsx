@@ -24,6 +24,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { SquarePen } from "lucide-react";
 import { UpdateAccountFormData } from "@/types/account";
 import { UpdateAccountSchema, ACCOUNT_TYPES } from "@/schemas/account";
+import { setFormError } from "@/lib/formError";
 
 export function UpdateAccountForm({
   account,
@@ -36,6 +37,7 @@ export function UpdateAccountForm({
     register,
     handleSubmit,
     control,
+    setError,
     formState: { isSubmitting, errors },
     reset,
   } = useForm({
@@ -51,8 +53,10 @@ export function UpdateAccountForm({
   async function onSubmit(data: UpdateAccountFormData) {
     const res = await updateAccount(data);
 
-    if (!res) return;
-
+    if (!res.success) {
+      setFormError(res, setError);
+      return;
+    }
     reset();
     setOpen(false);
   }

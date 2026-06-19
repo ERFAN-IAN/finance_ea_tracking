@@ -16,6 +16,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Trash2 } from "lucide-react";
 import { Account, DeleteAccountFormData } from "@/types/account";
 import { DeleteAccountSchema } from "@/schemas/account";
+import { setFormError } from "@/lib/formError";
 
 export function DeleteAccountForm({
   account,
@@ -26,6 +27,7 @@ export function DeleteAccountForm({
   const {
     register,
     handleSubmit,
+    setError,
     formState: { isSubmitting },
   } = useForm({
     resolver: zodResolver(DeleteAccountSchema),
@@ -36,7 +38,10 @@ export function DeleteAccountForm({
 
   async function onSubmit(data: DeleteAccountFormData) {
     const res = await deleteAccount(data);
-    if (!res) return;
+    if (!res.success) {
+      setFormError(res, setError);
+      return;
+    }
     setOpen(false);
   }
 

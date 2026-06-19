@@ -5,13 +5,13 @@ import { redirect } from "next/navigation";
 import { z } from "zod";
 import { ApiError, ApiResult, ApiSuccess, ApiSuccessVoid } from "@/types/index";
 
-export function serverFetch(
+export async function serverFetch(
   path: string,
   options: RequestInit,
   schema?: never,
   json?: boolean,
 ): Promise<ApiSuccessVoid | ApiError>;
-export function serverFetch<T>(
+export async function serverFetch<T>(
   path: string,
   options: RequestInit,
   schema: z.ZodSchema<T>,
@@ -39,7 +39,6 @@ export async function serverFetch<T>(
       "X-CSRFToken": csrftoken,
       ...(json && { "Content-Type": "application/json" }),
     },
-    cache: "no-store",
   });
 
   if (response.status === 401 || response.status === 403) {

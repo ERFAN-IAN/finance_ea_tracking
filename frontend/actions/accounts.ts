@@ -14,60 +14,53 @@ import {
   UpdateAccountSchema,
   DeleteAccountSchema,
 } from "@/schemas/account";
+import { parseFormError } from "@/lib/formError";
 
-const handleAccountActions = async (
+async function handleAccountActions<T>(
   method: "POST" | "PATCH" | "DELETE",
   formData:
     | CreateAccountFormData
     | UpdateAccountFormData
     | DeleteAccountFormData,
-  schema: z.ZodSchema = AccountSchema,
+  schema?: z.ZodSchema<T>,
   url?: string,
-) => {
-  const res = await serverFetch(
-    `accounts${url ? `/${url}` : ""}/`,
-    {
-      method,
-      body: JSON.stringify(formData),
-    },
-    schema,
-  );
+) {
+  if (schema) {
+    const res = await serverFetch(
+      `accounts${url ? `/${url}` : ""}/`,
+      {
+        method,
+        body: JSON.stringify(formData),
+      },
+      schema,
+    );
 
-  if (!res.success) {
-    const body = res.data as any;
-
-    // Map DRF errors to a stable shape
-    const fieldErrors: Record<string, string[]> = {};
-    let formError: string | undefined;
-
-    if (body && typeof body === "object") {
-      for (const [key, value] of Object.entries(body)) {
-        if (Array.isArray(value) && value.every((v) => typeof v === "string")) {
-          if (key === "non_field_errors" || key === "detail") {
-            formError = value.join(" ");
-          } else {
-            fieldErrors[key] = value as string[];
-          }
-        } else if (key === "detail" && typeof value === "string") {
-          formError = value;
-        }
-      }
+    if (!res.success) {
+      return parseFormError(res.data);
     }
 
-    return {
-      success: false,
-      fieldErrors: Object.keys(fieldErrors).length ? fieldErrors : undefined,
-      formError,
-    } as const;
+    revalidatePath("/accounts");
+    return { success: true, data: res.data } as const;
   }
+
+  const res = await serverFetch(`accounts${url ? `/${url}` : ""}/`, {
+    method,
+    body: JSON.stringify(formData),
+  });
+
+  if (!res.success) {
+    return parseFormError(res.data);
+  }
+
   revalidatePath("/accounts");
-  return { success: true, data: res.data } as const;
-};
+  return { success: res.success };
+}
 
 export async function createAccount(formData: CreateAccountFormData) {
   return await handleAccountActions(
     "POST",
     CreateAccountSchema.parse(formData),
+    AccountSchema,
   );
 }
 
@@ -75,7 +68,7 @@ export async function updateAccount(formData: UpdateAccountFormData) {
   return await handleAccountActions(
     "PATCH",
     UpdateAccountSchema.parse(formData),
-    undefined,
+    AccountSchema,
     `${formData.id}`,
   );
 }
@@ -84,7 +77,7 @@ export async function deleteAccount(formData: DeleteAccountFormData) {
   return await handleAccountActions(
     "DELETE",
     DeleteAccountSchema.parse(formData),
-    z.void(),
+    undefined,
     `${formData.id}`,
   );
 }

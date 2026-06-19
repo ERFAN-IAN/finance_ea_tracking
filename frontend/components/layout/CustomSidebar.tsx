@@ -30,7 +30,7 @@ const items = [
   },
 ];
 
-export function AppSidebar() {
+export function CustomSidebar() {
   const pathname = usePathname();
 
   return (

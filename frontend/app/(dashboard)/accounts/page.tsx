@@ -1,10 +1,11 @@
-import { AccountContainer } from "@/components/account/AccountContainer";
+import { GridListContainer } from "@/components/shared/GridListContainer";
 import { CreateAccountForm } from "@/components/forms/account/CreateAccountForm";
 import { Suspense } from "react";
-import { AccountContainerSkeleton } from "@/components/account/AccountContainerSkeleton";
 import { serverFetch } from "@/lib/fetch/server";
 import { PaginatedResponseSchema } from "@/schemas";
 import { AccountSchema } from "@/schemas/account";
+import { GridListContainerSkeleton } from "@/components/shared/GridListSkeleton";
+import { AccountCardSkeleton } from "@/components/sections/account/AccountCardSkeleton";
 
 export default async function Page({
   searchParams,
@@ -32,8 +33,12 @@ export default async function Page({
         <CreateAccountForm />
       </div>
 
-      <Suspense fallback={<AccountContainerSkeleton />}>
-        <AccountContainer accountPromise={response} />
+      <Suspense
+        fallback={
+          <GridListContainerSkeleton CardSkeleton={<AccountCardSkeleton />} />
+        }
+      >
+        <GridListContainer promise={response} cardType="account" />
       </Suspense>
     </main>
   );
