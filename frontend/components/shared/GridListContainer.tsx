@@ -9,14 +9,28 @@ import { PaginatedResponse } from "@/types";
 import { ApiError, ApiSuccess } from "@/types";
 import { CustomPagination } from "./CustomPagination";
 import { GridListButton } from "./GridListButton";
-import { Wallet } from "lucide-react";
+import { List, Wallet } from "lucide-react";
 import { NoItem } from "@/components/shared/NoItem";
 import { hasDetail } from "@/lib/typeguards";
 import { cn } from "@/lib/utils";
 import { useSidebar } from "@/components/ui/sidebar";
+import { Category } from "@/types/category";
+import { CategoryCard } from "../sections/category/CategoryCard";
 
 type Cards = {
-  account: Account;
+  account: {
+    item: Account;
+    noItemIcon: typeof Wallet;
+  };
+  category: {
+    item: Category;
+    noItemIcon: typeof List;
+  };
+};
+
+const icons = {
+  account: Wallet,
+  category: List,
 };
 
 export function GridListContainer<T extends keyof Cards>({
@@ -25,7 +39,7 @@ export function GridListContainer<T extends keyof Cards>({
   gridCSSOpenSidebar = "grid-cols-1 lg:grid-cols-2 xl:grid-cols-3",
   gridCSSCloseSidebar = "grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4",
 }: {
-  promise: Promise<ApiSuccess<PaginatedResponse<Cards[T]>> | ApiError>;
+  promise: Promise<ApiSuccess<PaginatedResponse<Cards[T]["item"]>> | ApiError>;
   cardType: T;
   gridCSSOpenSidebar?: string;
   gridCSSCloseSidebar?: string;
@@ -56,7 +70,7 @@ export function GridListContainer<T extends keyof Cards>({
     setIsMounted(true);
   }, []);
   if (usedPromise.data.count === 0)
-    return <NoItem value={cardType} Icon={Wallet} />;
+    return <NoItem value={cardType} Icon={icons[cardType]} />;
   if (isMounted)
     return (
       <div className="space-y-6">
@@ -83,6 +97,9 @@ export function GridListContainer<T extends keyof Cards>({
               <div key={item.id} className="w-full">
                 {cardType === "account" && (
                   <AccountCard account={item as Account} />
+                )}
+                {cardType === "category" && (
+                  <CategoryCard category={item as Category} />
                 )}
               </div>
             ))}
