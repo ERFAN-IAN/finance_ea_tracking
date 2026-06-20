@@ -10,8 +10,10 @@ import { ApiError, ApiSuccess } from "@/types";
 import { CustomPagination } from "./CustomPagination";
 import { GridListButton } from "./GridListButton";
 import { Wallet } from "lucide-react";
-import { NoItem } from "./NoItem";
+import { NoItem } from "@/components/shared/NoItem";
 import { hasDetail } from "@/lib/typeguards";
+import { cn } from "@/lib/utils";
+import { useSidebar } from "@/components/ui/sidebar";
 
 type Cards = {
   account: Account;
@@ -20,9 +22,13 @@ type Cards = {
 export function GridListContainer<T extends keyof Cards>({
   promise,
   cardType,
+  gridCSSOpenSidebar = "grid-cols-1 lg:grid-cols-2 xl:grid-cols-3",
+  gridCSSCloseSidebar = "grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4",
 }: {
   promise: Promise<ApiSuccess<PaginatedResponse<Cards[T]>> | ApiError>;
   cardType: T;
+  gridCSSOpenSidebar?: string;
+  gridCSSCloseSidebar?: string;
 }) {
   const usedPromise = use(promise);
   if (!usedPromise.success) {
@@ -39,6 +45,7 @@ export function GridListContainer<T extends keyof Cards>({
 
   const [isGrid, setIsGrid] = useState<boolean>(true);
   const [isMounted, setIsMounted] = useState<boolean>(false);
+  const { open } = useSidebar();
 
   useEffect(() => {
     const gridStaut =
@@ -49,7 +56,7 @@ export function GridListContainer<T extends keyof Cards>({
     setIsMounted(true);
   }, []);
   if (usedPromise.data.count === 0)
-    return <NoItem value="account" Icon={Wallet} />;
+    return <NoItem value={cardType} Icon={Wallet} />;
   if (isMounted)
     return (
       <div className="space-y-6">
@@ -63,9 +70,14 @@ export function GridListContainer<T extends keyof Cards>({
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
-            className={`grid gap-4 ${
-              isGrid ? "grid-cols-1 sm:grid-cols-2" : "grid-cols-1"
-            }`}
+            className={cn(
+              "grid gap-4",
+              !isGrid
+                ? "grid-cols-1"
+                : open
+                  ? `${gridCSSOpenSidebar}`
+                  : `${gridCSSCloseSidebar}`,
+            )}
           >
             {usedPromise.data.results.map((item) => (
               <div key={item.id} className="w-full">

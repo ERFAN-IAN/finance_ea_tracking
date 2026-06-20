@@ -49,16 +49,16 @@ export function AccountCard({ account }: { account: Account }) {
       </CardHeader>
 
       <CardContent className="flex justify-between items-end gap-4">
-        <div className="flex flex-col gap-1">
+        <div className="flex flex-col gap-1 min-w-0 flex-1">
           <p className="text-xs font-medium uppercase tracking-[0.16em] text-slate-500">
             {account.type}
           </p>
 
-          <p className="text-3xl font-semibold tracking-tight text-slate-900">
+          <p className="text-2xl lg:text-3xl font-semibold tracking-tight text-slate-900">
             {formattedBalance}
           </p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-2 shrink-0">
           <UpdateAccountForm account={account} />
           <DeleteAccountForm account={account} />
         </div>

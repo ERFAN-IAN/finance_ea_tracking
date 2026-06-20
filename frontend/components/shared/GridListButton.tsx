@@ -11,7 +11,7 @@ export function GridListButton({
   setIsGrid: (value: boolean) => void;
 }) {
   return (
-    <div className="flex items-center gap-2 bg-muted p-1 rounded-xl">
+    <div className="hidden md:flex items-center gap-2 bg-muted p-1 rounded-xl">
       <Button
         size="icon"
         variant={isGrid ? "default" : "ghost"}
