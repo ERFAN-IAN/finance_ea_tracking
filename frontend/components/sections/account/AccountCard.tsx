@@ -13,17 +13,40 @@ export function AccountCard({ account }: { account: Account }) {
   const isActive = account.is_active;
 
   const cardStyles = isActive
-    ? "border-2 border-sky-200 bg-gradient-to-br from-sky-50/70 via-slate-50 to-white hover:border-sky-300"
-    : "border-2 border-border bg-muted/40";
+    ? `
+      border-sky-500/30
+      bg-gradient-to-br
+      from-sky-500/5
+      via-background
+      to-background
+      hover:border-sky-500/50
+    `
+    : `
+      border-border
+      bg-muted/30
+    `;
 
   const statusStyles = isActive
-    ? "bg-sky-100 text-sky-800 ring-1 ring-sky-200"
-    : "bg-slate-100 text-slate-600 ring-1 ring-slate-200";
+    ? `
+      bg-sky-500/10
+      text-sky-600
+      dark:text-sky-400
+      ring-sky-500/20
+    `
+    : `
+      bg-muted
+      text-muted-foreground
+      ring-border
+    `;
 
   return (
     <Card
       className={cn(
-        "transition-all duration-200 shadow-sm hover:shadow-md",
+        `
+    transition-all
+    duration-300
+    hover:shadow-lg
+    `,
         cardStyles,
       )}
     >
@@ -41,7 +64,9 @@ export function AccountCard({ account }: { account: Account }) {
           <span
             className={cn(
               "h-1.5 w-1.5 rounded-full",
-              isActive ? "bg-sky-500" : "bg-slate-400",
+              isActive
+                ? "bg-sky-500 shadow-[0_0_8px_var(--color-sky-500)]"
+                : "bg-muted-foreground",
             )}
           />
           {isActive ? "Active" : "Inactive"}
@@ -50,11 +75,11 @@ export function AccountCard({ account }: { account: Account }) {
 
       <CardContent className="flex justify-between items-end gap-4">
         <div className="flex flex-col gap-1 min-w-0 flex-1">
-          <p className="text-xs font-medium uppercase tracking-[0.16em] text-slate-500">
+          <p className="text-xs font-medium uppercase tracking-[0.16em] text-muted-foreground">
             {account.type}
           </p>
 
-          <p className="text-2xl lg:text-3xl font-semibold tracking-tight text-slate-900">
+          <p className="text-2xl lg:text-3xl font-semibold tracking-tight text-foreground">
             {formattedBalance}
           </p>
         </div>

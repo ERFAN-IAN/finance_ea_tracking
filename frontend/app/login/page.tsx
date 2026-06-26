@@ -8,8 +8,10 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
+import { toast } from "sonner";
+import { useEffect } from "react";
 
 const loginSchema = z.object({
   username: z.string().min(1, "Username is required"),
@@ -31,8 +33,20 @@ export default function LoginPage() {
     setError,
   } = useForm({ resolver: zodResolver(loginSchema) });
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const loggedOut = searchParams.get("loggedOut");
+  useEffect(() => {
+    if (loggedOut) {
+      setTimeout(() => {
+        toast.error("You've been logged out.", {
+          position: "top-center",
+        });
+      });
+    }
+    router.replace("/login");
+  }, []);
   return (
-    <main className="flex min-h-screen w-full flex-col items-center justify-center bg-gray-50 p-6">
+    <main className="flex min-h-screen w-full flex-col items-center justify-center p-6">
       <Card className="w-full max-w-sm">
         <CardHeader>
           <Link
@@ -72,8 +86,10 @@ export default function LoginPage() {
                 },
               );
               if (request.ok) {
-                router.refresh();
                 router.replace("/");
+                toast.success("You've been logged in.", {
+                  position: "top-center",
+                });
                 return;
               }
               const errorData = await request.json().catch(() => null);

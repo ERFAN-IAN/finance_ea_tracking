@@ -42,7 +42,7 @@ export async function serverFetch<T>(
   });
 
   if (response.status === 401 || response.status === 403) {
-    return redirect("/login");
+    return redirect("/login?loggedOut=true");
   }
 
   const data = await response.json().catch(() => null);

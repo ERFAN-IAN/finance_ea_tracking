@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Home, LogOut, CreditCard, Wallet, List } from "lucide-react";
 import { logout } from "@/actions/auth";
+import { toast } from "sonner";
 
 import {
   Sidebar,
@@ -73,7 +74,15 @@ export function CustomSidebar() {
                 );
               })}
               <SidebarMenuItem>
-                <form action={logout} className="w-full">
+                <form
+                  action={() => {
+                    logout();
+                    toast.success(`You've been logged out.`, {
+                      position: "top-center",
+                    });
+                  }}
+                  className="w-full"
+                >
                   <SidebarMenuButton
                     type="submit"
                     className="h-10 w-full cursor-pointer data-[active=true]:bg-muted data-[active=true]:text-foreground"

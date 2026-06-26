@@ -2,6 +2,7 @@ import { SidebarProvider } from "@/components/ui/sidebar";
 import { cookies } from "next/headers";
 import { SidebarTrigger, SidebarInset } from "@/components/ui/sidebar";
 import { CustomSidebar } from "@/components/layout/CustomSidebar";
+import Navbar from "@/components/layout/Navbar";
 export default async function Layout({
   children,
 }: Readonly<{
@@ -13,9 +14,7 @@ export default async function Layout({
       <SidebarProvider defaultOpen={sidebarCookieState?.value !== "false"}>
         <CustomSidebar />
         <SidebarInset>
-          <header className="flex h-16 items-center border-b px-4">
-            <SidebarTrigger />
-          </header>
+          <Navbar />
           {children}
         </SidebarInset>
       </SidebarProvider>
